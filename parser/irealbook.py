@@ -25,7 +25,7 @@ import math
 
 from realbook.score import MusicScore
 
-SONG_RE = r"irealbook://(?P<title>[\w\s\-\ ',\(\)?]+)=(?P<author>[\w\s\-\ ',]+)=(?P<tempo>[\w\s\-\ ',]+)=(?P<key>[\w\s-]+)=(.)=(?P<song>.+)="
+SONG_RE = r"irealbook://(?P<title>[\w\s\-\ ',\(\)?]+)=(?P<author>[\w\s\-\ ',]+)=(?P<tempo>[\w\s\-\ ',]+)=(?P<key>[\w\s-]+)=(.)=(?P<song>.+Z)"
     
 class IRealBookParser:
     def __init__(self, score, s):
@@ -145,7 +145,7 @@ class IRealBookParser:
             elif song[i] in ('Z', '='):
                 measure.stop_barline = 'final'
                 break
-            elif song[i] in ('Q', 'Y', 'p'):
+            elif song[i] in ('Y', 'p'):
                 #TODO
                 pass
             elif song[i] in ('%', 'x', 'r', 'n'):
@@ -177,6 +177,8 @@ class IRealBookParser:
                 measure.add_symbol(chord_index, text)
             elif song[i] == 'S':
                 measure.add_symbol(chord_index, 'segno')
+            elif song[i] == 'Q':
+                measure.add_symbol(chord_index, 'segno')
             elif song[i] == 'f':
                 next_chord_fermata = True
             else:
@@ -185,7 +187,6 @@ class IRealBookParser:
                 except Exception, e:
                     print i, song, '\nError:', song[i:], '\n'
             i += 1
-        
         
 def test(i, s):
     score = MusicScore()
@@ -198,8 +199,27 @@ def test(i, s):
     cr = cairo.Context(surface)
     score.draw(cr, w, h)
     cr.show_page()
-    
+   
+def test1(s):
+    score = MusicScore()
+    IRealBookParser(score, s)
+    # write to png
+    w, h = (800, 1200)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+    cr = cairo.Context(surface)
+    score.draw(cr, w, h)
+    cr.show_page()
+    surface.write_to_png(open('%s.png' %score.title, 'w'))
+
+import urllib
+
 if __name__ == '__main__':
+    s = 'irealbook://I%20Believe%20In%20You%3DLoesser%20Frank%3DMedium%20Up%20Swing%3DG%3Dn%3D%7B*AT44A-7%20%20%20%7CA-%5E7%20%20%20%7CA-7%20%20%20%7CA-6%20%20%20%7CB-7%20%20%20%7CC9%2311%20%20%20%7CB-7%20%20%20%7CE7%20%20%20%7C%7CA-7%20%20%20%7CA-%5E7%20%20%20%7CA-7%20%20%20%7CA-6%20%20%20%7CB%5E7%20%20%20%7CC%23-7%20F%237%20%7CB%5E7%20%20%20%7CA-7%20%20%20%7CD7%20%20%20%7CG%5E7%20%20%20%7CB-7%20E7%20%7CA-7%20%20%20%7CD7%20%20Q%20%7CN1G6%20%20%20%7CE7%20%20%20%7DN2G6%20%20%20%7CBb-7%20Eb7%20%5D*BAb%5E7%20%20%20%7CBb-7%20Eb7%20%7CAb%5E7%20%20%20%7CC-7%20F7%20%7CBb-7%20%20%20%7CEb7%20%20%20%7CAb%5E7%20%20%20%7CC-7%20F7%20%7CBb%5E7%20%20%20%7CC-7%20F7%20%7CBb%5E7%20%20%20%7C%20x%20%20%7CG-7%20%20%20%7CC7%20%20%20%7CA-7%20D7%20%7CB-7%20%3CD.C.%20al%20Coda%3EE7%20%5D%20%20%20%20%20%20%20%20%20%20%20%20%5BQG6%20%20%20%7CB-7%20E7%20Z%20%20%3CSolo%20on%20entire%20form%3E%20'
+
+    s = urllib.unquote(s)
+    test1(s)
+    raise SystemExit
+
     songs = open('songs.txt').read().split('\n')
     start = int(sys.argv[1])
     for s in songs[start:]:

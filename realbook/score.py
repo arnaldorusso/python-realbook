@@ -225,14 +225,14 @@ def test1():
     score.author = 'Author'
     score.tempo = 'Swing'
     s = score.add_staff()
-    m = s.add_measure(section='A')
+    m = s.add_measure(section='A', stop_barline='final')
     m.add_chord(0, 'C')
-    # print to pdf
-    w, h = (8.27*100, 11.69*100)
-    surface = cairo.PDFSurface('score.pdf', w, h)
+    # print to png
+    w, h = (400, 300)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
     cr = cairo.Context(surface)
     score.draw(cr, w, h)
-    cr.show_page()
+    surface.write_to_png(open('score.png', 'w'))
 
 if __name__ == '__main__':
     test1()
