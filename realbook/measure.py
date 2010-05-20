@@ -183,7 +183,7 @@ class Measure:
         self.padding_left += 2
         cr.move_to(self.padding_left, self.staff.staff_lines_pos[3])
         if not self.simulate:
-            cr.show_text('V')
+            cr.show_text('&')
         # update dist
         top_dist = self.staff.staff_lines_pos[3]-self.staff.staff_lines_pos[0]
         height = -ybear - top_dist
